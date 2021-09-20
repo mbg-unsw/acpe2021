@@ -38,7 +38,7 @@
 
 \title{Changes in antibiotic prescribing following COVID-19 restrictions:
 	Lessons for post-pandemic antibiotic stewardship}
-\author{Malcolm Gillies, Medicines Policy Research Unit, CBDRH, UNSW Sydney}
+\author{Malcolm B. Gillies, Medicines Policy Research Unit, CBDRH, UNSW Sydney}
 %\author{Malcolm Gillies, Dave Burgner, Lorraine Ivancic, Natasha Nassar, Jessica Miller, Sheena Sullivan, Isobel Todd, Sallie Pearson, Andrea Schaffer \& Helga Zoega}
 \date{15 October 2021}
 \usebackgroundtemplate{%
@@ -69,12 +69,11 @@
     \end{beamercolorbox}%
     \vskip1em\par
     \begin{beamercolorbox}[sep=8pt,center,#1]{author}
-      \usebeamerfont{author}\insertauthor
-
+      \usebeamerfont{author}\insertauthor\par
+	\smallskip
 	\usebeamerfont{institute}Coauthors: D. P. Burgner, L. Ivancic,
-N. Nassar, J. E. Miller,
-
-S. G. Sullivan, I. M. F. Todd, S.-A. Pearson, A. L. Schaffer \& H. Zoega
+N. Nassar, J. E. Miller, S. G. Sullivan,\\
+I. M. F. Todd, S.-A. Pearson, A. L. Schaffer \& H. Zoega
     \end{beamercolorbox}
     \begin{beamercolorbox}[sep=8pt,center,#1]{institute}
       \usebeamerfont{institute}\insertinstitute
@@ -87,9 +86,11 @@ S. G. Sullivan, I. M. F. Todd, S.-A. Pearson, A. L. Schaffer \& H. Zoega
   \vfill
 }
 
+%\setbeamerfont*{title}{size=\Large}
+
 \begin{document}
 
-\setbeamertemplate{title page}[custom]
+%\setbeamertemplate{title page}[custom]
 {
 \usebackgroundtemplate{}
 \begin{frame}
@@ -108,11 +109,11 @@ involvement in, the current study.  \medskip
 \begin{itemize}
 	\item National Health \& Medical Research Council (NHMRC) Centre of Research Excellence in Medicines Intelligence (\#1196900)
 	\item UNSW Scientia Fellowship [HZ]
-	\item NHMRC Early Career Fellowship (\#1158763) [AS]
-	\item NHMRC Investigator Grant (\#1175744) [DB]
+	\item NHMRC Early Career Fellowship (\#1158763) [ALS]
+	\item NHMRC Investigator Grant (\#1175744) [DPB]
 	\item Financial Markets Foundation for Children \& NHMRC Investigator Grant (\#APP1197940) [NN, LI]
-	\item Victorian Government Operational Infrastructure Program [DB, JM, IT]
-	\item Australian Government Department of Health [SS]
+	\item Victorian Government Operational Infrastructure Program [DPB, JEM, IMFT]
+	\item Australian Government Department of Health [SGS]
 \end{itemize}
 
 \end{frame}
@@ -153,15 +154,15 @@ involvement in, the current study.  \medskip
 
 	\tiny 9 March 2020
 
-	\copyright Christopher Corneschi.
+	\copyright\: Christopher Corneschi.
 	Reproduced under CC-BY-SA licence [cropped from original]
 	% XXXX nice to rotate this and put on the right
 \end{frame}
 
 \begin{frame}{Methods}
     \begin{itemize}
-        \item Aggregate (``S85'') PBS dispensing data, Nov 2016 to Oct 2020
-        \item 10\% sample person-level PBS dispensing data, Nov 2016 to Aug 2020
+        \item Aggregate (``S85'') dispensing claims data, Nov 2016 to Oct 2020
+        \item 10\% sample person-level dispensing claims data, Nov 2016 to Aug 2020
         \item ATC J01 antibacterials for systemic use
         \item Autoregressive Moving Average (ARMA) model, automatic selection
         \item Intercept, trend, month dummies for seasonality
@@ -202,7 +203,7 @@ involvement in, the current study.  \medskip
 % 
 %% end.rcode
 
-\begin{frame}{Results: overall changes in PBS antibiotic dispensing}
+\begin{frame}{Results: overall changes in antibiotic dispensing}
 %% begin.rcode j01armap3, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
 % tss <- ts %>% mutate(step=ifelse(as.Date(date)>=as.Date("2020-04-01"),1,0),
 % 		pulse=ifelse(as.Date(date)==as.Date("2020-03-01"),1,0))
@@ -252,7 +253,7 @@ involvement in, the current study.  \medskip
 % 	geom_line(data=tssf, aes(x=date, y=cnt, colour="Data")) +
 % 	scale_x_yearmonth(date_labels="%d-%b-%y") +
 % 	xlab("Date") +
-% 	ylab("Monthly PBS dispensings J01\nper 1000 population") +
+% 	ylab("Monthly dispensings J01\nper 1000 population") +
 % 	theme(axis.title.x = element_text(size = 10),
 % 		axis.title.y = element_text(size = 10)) +
 %# 	geom_vline(xintercept = as.Date("2020-03-01")) +
@@ -272,6 +273,7 @@ involvement in, the current study.  \medskip
 % # atc_name <- setNames(atctmp$ATC_NAME, atctmp$ATC_CODE)
 % atc_name <- setNames(paste0(toupper(substr(atctmp$ATC_NAME, 1, 1)),
 %	substr(atctmp$ATC_NAME, 2, nchar(atctmp$ATC_NAME))), atctmp$ATC_CODE)
+% atc_name["J01CR02"] <- "Amoxicillin with clavulanic acid"
 % out <- readRDS(paste0(DATADIR,"s85j01monthly.rds"))
 % top <- out %>% filter(date >= yearmonth("2018-07-01") &
 % 		date < yearmonth("2019-07-01")) %>%
@@ -377,7 +379,7 @@ involvement in, the current study.  \medskip
 %	facet_wrap(ncol=2, vars(agegroup), scales = "free_y", strip.position="right") +
 % 		scale_x_yearmonth(date_labels="%d-%b-%y", date_breaks="1 year") +
 % 		xlab("Date") +
-% 		ylab("Monthly PBS dispensings J01\nper 1000 pop") +
+% 		ylab("Monthly dispensings J01\nper 1000 pop") +
 %               labs(colour=g) +
 %		theme(axis.title.x = element_text(size = 10),
 %			axis.title.y = element_text(size = 10))
@@ -406,7 +408,7 @@ involvement in, the current study.  \medskip
 %	facet_grid(vars(cat), scales = "free_y") +
 % 		scale_x_yearmonth(date_labels="%d-%b-%y", date_breaks="1 year") +
 % 		xlab("Date") +
-% 		ylab("Monthly PBS dispensings J01\nper 1000 pop") +
+% 		ylab("Monthly dispensings J01\nper 1000 pop") +
 %               labs(colour=g) +
 %		theme(axis.title.x = element_text(size = 10),
 %			axis.title.y = element_text(size = 10))
