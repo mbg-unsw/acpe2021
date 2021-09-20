@@ -1,22 +1,25 @@
+% ACPE2021: Talk on Australian antibiotic utilisation during COVID-19
+% (c) 2021 Malcolm Gillies <malcolm.gillies@unsw.edu.au>
+% https://github.com/mbg-unsw/acpe2021
+%
+% This work is licensed under a
+% Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+% International Licence
 \documentclass[aspectratio=169,12pt]{beamer} % XXXX fix AR here
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
-%\usetheme{Copenhagen}
-%\usefonttheme{structurebold}
 \usefonttheme{serif} % need this with Charter font
 \usetheme{Berlin}  % using default now
 \usecolortheme{beaver}  % using default now
-%\usepackage{charter} % not needed with mathdesign
-%\usepackage[charter]{mathdesign}
 \usepackage[libertine]{libertine} % not using osf (old-style figures)
-%\usepackage{arev} % using tgehero instead
 \usepackage[scale=0.9]{tgheros} % scale to match libertine
 \usepackage[varqu,varl]{inconsolata}
 \usepackage[libertine]{newtxmath}
-%\renewcommand{\rmdefault}{\sfdefault}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usepackage{tikzpagenodes}
+\usepackage{gitinfo2}
 \newcommand{\rinline}[1]{SOMETHING WRONG WITH knitr}
 %% begin.rcode setup, include=FALSE
 % library(knitr)
@@ -28,49 +31,93 @@
 % options(digits = 2)
 % options(width = 75)
 %% end.rcode
-
-%\definecolor{beamer@mohblue}{rgb}{0,0.15,0.39}
-%\setbeamercolor{normal text}{fg=beamer@mohblue} % bullets blue by default
-%\setbeamercolor{alerted text}{fg=beamer@mohblue!80!gray}
-%\setbeamercolor{palette primary}{fg=beamer@mohblue}
-%\setbeamercolor{palette secondary}{fg=beamer@mohblue}
-%\setbeamercolor{palette tertiary}{bg=beamer@mohblue}
-%\setbeamercolor{titlelike}{fg=beamer@mohblue}
-%\setbeamercolor{frametitle}{fg=beamer@mohblue,bg=}
-%\setbeamercolor{item}{fg=beamer@mohblue} % bullets blue by default
-%\setbeamercolor{itemize/enumerate body}{fg=beamer@mohblue}
-%\setbeamerfont{frametitle}{size*={19}{21}}
-%\setbeamerfont{item}{size*={13.2}{14.3}}
-%\setbeamerfont{itemize item}{size*={13.2}{14.3}}
-%\setbeamerfont{itemize subitem}{size*={13.2}{14.3}}
-%\setbeamerfont{itemize subsubitem}{size*={13.2}{14.3}}
-%\setbeamertemplate{itemize item}{\raisebox{-0.3\height}{\scalebox{2.0}{\textbullet}}}
-%\setbeamertemplate{itemize subitem}{--}
-%\setbeamertemplate{itemize subsubitem}{--}
 \setbeamertemplate{navigation symbols}{} % remove navigation symbols
 \setbeamercolor*{item}{fg=darkred}
 
-%\setbeamertemplate{title page}[default][rounded=false] % needed for Copenhagen
-\title{Antibiotic dispensing in Australia in 2020: a very interrupted
-    time series}
-\author{Malcolm Gillies, Dave Burgner, Lorraine Ivancic, Natasha Nassar, Jessica Miller, Sheena Sullivan, Isobel Todd, Sallie Pearson, Andrea Schaffer and Helga Zoega}
-\date{3 Feb 2021}
-%\usebackgroundtemplate{%
-%\begin{tikzpicture}[remember picture,overlay]
-%    \node[anchor=south west,scale=1,rotate=90] at ([shift={(0cm,0cm)}]current page.south east) {\texttt{\tiny v\RCSRevision\ \RCSRawDate}};
-%    \draw[beamer@mohblue] ([yshift=-1.3cm]current page.north west)
-%             -- ([yshift=-1.3cm,xshift=\paperwidth]current page.north west);
-%\end{tikzpicture}%
-%}
+\renewcommand{\gitMark}{\color{gray}\texttt{\tiny\gitBranch\,@\,\gitAbbrevHash\,\gitAuthorDate}}
+
+\title{Changes in antibiotic prescribing following COVID-19 restrictions:
+	Lessons for post-pandemic antibiotic stewardship}
+\author{Malcolm Gillies, Medicines Policy Research Unit, CBDRH, UNSW Sydney}
+%\author{Malcolm Gillies, Dave Burgner, Lorraine Ivancic, Natasha Nassar, Jessica Miller, Sheena Sullivan, Isobel Todd, Sallie Pearson, Andrea Schaffer \& Helga Zoega}
+\date{15 October 2021}
+\usebackgroundtemplate{%
+\begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=south west,scale=1,rotate=90] at ([shift={(0cm,0cm)}]current page marginpar area.south east) {\gitMark};
+\end{tikzpicture}}
+
+\titlegraphic{%
+\begin{tikzpicture}[overlay,remember picture]
+	\node[anchor=south west,scale=0.33] at ([shift={(0cm,0cm)}]current page text area.south west)
+	{\includegraphics{ref/unsw-cbdrh-land}};
+\end{tikzpicture}
+}
+
+\defbeamertemplate*{title page}{custom}[1][]
+{
+  \vbox{}
+  \vfill
+  \begingroup
+    \centering
+    \begin{beamercolorbox}[sep=8pt,center,#1]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%
+    \end{beamercolorbox}%
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,center,#1]{author}
+      \usebeamerfont{author}\insertauthor
+
+	\usebeamerfont{institute}Coauthors: D. P. Burgner, L. Ivancic,
+N. Nassar, J. E. Miller,
+
+S. G. Sullivan, I. M. F. Todd, S.-A. Pearson, A. L. Schaffer \& H. Zoega
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{institute}
+      \usebeamerfont{institute}\insertinstitute
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,center,#1]{date}
+      \usebeamerfont{date}\insertdate
+    \end{beamercolorbox}\vskip0.5em
+    {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\par}
+  \endgroup
+  \vfill
+}
+
 \begin{document}
 
+\setbeamertemplate{title page}[custom]
 {
-%\usebackgroundtemplate{}
+\usebackgroundtemplate{}
 \begin{frame}
 \titlepage
 \end{frame}
 }
-\begin{frame}{Antibiotic prescribing by Australian GPs}
+\begin{frame}{Disclosures, ethics and funding}
+In 2020, the Centre for Big Data Research in Health, UNSW Sydney
+received funding from AbbVie Australia to conduct post-market
+surveillance research. AbbVie did not have any knowledge of, or
+involvement in, the current study.  \medskip
+
+\tiny This study was approved by the New South Wales Population and Health Services Research Ethics Committee (no. 2013/11/494). Data access was granted by the Australian Services Australia External Request Evaluation Committee (no. RMS1126). \medskip
+
+	\tiny This research was supported by:
+\begin{itemize}
+	\item National Health \& Medical Research Council (NHMRC) Centre of Research Excellence in Medicines Intelligence (\#1196900)
+	\item UNSW Scientia Fellowship [HZ]
+	\item NHMRC Early Career Fellowship (\#1158763) [AS]
+	\item NHMRC Investigator Grant (\#1175744) [DB]
+	\item Financial Markets Foundation for Children \& NHMRC Investigator Grant (\#APP1197940) [NN, LI]
+	\item Victorian Government Operational Infrastructure Program [DB, JM, IT]
+	\item Australian Government Department of Health [SS]
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Guideline concordance in Australian primary care}
     \begin{table}[h]
         \centering
         \begin{tabular}{lr@{ }r@{ }}
@@ -106,7 +153,7 @@
 
 	\tiny 9 March 2020
 
-	(C) Christopher Corneschi.
+	\copyright Christopher Corneschi.
 	Reproduced under CC-BY-SA licence [cropped from original]
 	% XXXX nice to rotate this and put on the right
 \end{frame}
@@ -372,9 +419,13 @@
 
 \begin{frame}{Thanks}
     \begin{itemize}
-        \item Andrea
-        \item Helga
+        \item Australian Government Services Australia for providing the data
+	\item Melisa Litchfield for assisting with data access and ethics approval
     \end{itemize}
+\vfill
+	Published in \emph{Br J Clin Pharmacol} 2021 doi:\href{https://doi.org/10.1111/bcp.15000}{10.1111/bcp.15000}
+
+Contact: malcolm.gillies@unsw.edu.au
 \end{frame}
 
 \end{document}
