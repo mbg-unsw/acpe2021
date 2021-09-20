@@ -1,11 +1,16 @@
-# Method of the month: The Newey-West estimator and interrupted time series
-A ten-minute rough-and-ready talk introducing the Newey-West
-heteroskedasticity- and autocorrelation-robust estimator for a non-technical
-audience and assessing how useful it is for interrupted time series
-analysis of health policy interventions.
+# ACPE 2021 presentation: community utilisation of antibiotics in Australia during the COVID-19 pandemic
+A ten-minute talk based on
 
-Delivered to the Medicines Policy Research Unit monthly Work In Progress
-meeting on 20 May 2021.
+Changes in antibiotic prescribing following COVID-19 restrictions: Lessons for post-pandemic antibiotic stewardship
+
+Malcolm B. Gillies, David P. Burgner, Lorraine Ivancic, Natasha Nassar, Jessica E. Miller, Sheena G. Sullivan, Isobel M. F. Todd, Sallie-Anne Pearson, Andrea L. Schaffer, Helga Zoega
+
+First published: 17 August 2021
+
+https://doi.org/10.1111/bcp.15000
+
+To be delivered to ISPE's 13th Asian Conference on Pharmacoepidemiology and Risk Management
+(ACPE 2021) on 15 October 2021.
 
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
