@@ -1,0 +1,380 @@
+\documentclass[aspectratio=169,12pt]{beamer} % XXXX fix AR here
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+%\usetheme{Copenhagen}
+%\usefonttheme{structurebold}
+\usefonttheme{serif} % need this with Charter font
+\usetheme{Berlin}  % using default now
+\usecolortheme{beaver}  % using default now
+%\usepackage{charter} % not needed with mathdesign
+%\usepackage[charter]{mathdesign}
+\usepackage[libertine]{libertine} % not using osf (old-style figures)
+%\usepackage{arev} % using tgehero instead
+\usepackage[scale=0.9]{tgheros} % scale to match libertine
+\usepackage[varqu,varl]{inconsolata}
+\usepackage[libertine]{newtxmath}
+%\renewcommand{\rmdefault}{\sfdefault}
+\usepackage{graphicx}
+\usepackage{tikz}
+\newcommand{\rinline}[1]{SOMETHING WRONG WITH knitr}
+%% begin.rcode setup, include=FALSE
+% library(knitr)
+% opts_knit$set(progress=FALSE, verbose=FALSE)
+% opts_chunk$set(fig.path='figure/latex-', cache.path='cache/latex-',
+%     cache=FALSE, tidy=FALSE, external=FALSE, echo=FALSE, results="asis",
+%     dev='tikz', fig.show='asis',
+%     fig.align='center', dev.args = list(tikz = list(verbose = FALSE)))
+% options(digits = 2)
+% options(width = 75)
+%% end.rcode
+
+%\definecolor{beamer@mohblue}{rgb}{0,0.15,0.39}
+%\setbeamercolor{normal text}{fg=beamer@mohblue} % bullets blue by default
+%\setbeamercolor{alerted text}{fg=beamer@mohblue!80!gray}
+%\setbeamercolor{palette primary}{fg=beamer@mohblue}
+%\setbeamercolor{palette secondary}{fg=beamer@mohblue}
+%\setbeamercolor{palette tertiary}{bg=beamer@mohblue}
+%\setbeamercolor{titlelike}{fg=beamer@mohblue}
+%\setbeamercolor{frametitle}{fg=beamer@mohblue,bg=}
+%\setbeamercolor{item}{fg=beamer@mohblue} % bullets blue by default
+%\setbeamercolor{itemize/enumerate body}{fg=beamer@mohblue}
+%\setbeamerfont{frametitle}{size*={19}{21}}
+%\setbeamerfont{item}{size*={13.2}{14.3}}
+%\setbeamerfont{itemize item}{size*={13.2}{14.3}}
+%\setbeamerfont{itemize subitem}{size*={13.2}{14.3}}
+%\setbeamerfont{itemize subsubitem}{size*={13.2}{14.3}}
+%\setbeamertemplate{itemize item}{\raisebox{-0.3\height}{\scalebox{2.0}{\textbullet}}}
+%\setbeamertemplate{itemize subitem}{--}
+%\setbeamertemplate{itemize subsubitem}{--}
+\setbeamertemplate{navigation symbols}{} % remove navigation symbols
+\setbeamercolor*{item}{fg=darkred}
+
+%\setbeamertemplate{title page}[default][rounded=false] % needed for Copenhagen
+\title{Antibiotic dispensing in Australia in 2020: a very interrupted
+    time series}
+\author{Malcolm Gillies, Dave Burgner, Lorraine Ivancic, Natasha Nassar, Jessica Miller, Sheena Sullivan, Isobel Todd, Sallie Pearson, Andrea Schaffer and Helga Zoega}
+\date{3 Feb 2021}
+%\usebackgroundtemplate{%
+%\begin{tikzpicture}[remember picture,overlay]
+%    \node[anchor=south west,scale=1,rotate=90] at ([shift={(0cm,0cm)}]current page.south east) {\texttt{\tiny v\RCSRevision\ \RCSRawDate}};
+%    \draw[beamer@mohblue] ([yshift=-1.3cm]current page.north west)
+%             -- ([yshift=-1.3cm,xshift=\paperwidth]current page.north west);
+%\end{tikzpicture}%
+%}
+\begin{document}
+
+{
+%\usebackgroundtemplate{}
+\begin{frame}
+\titlepage
+\end{frame}
+}
+\begin{frame}{Antibiotic prescribing by Australian GPs}
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{lr@{ }r@{ }}
+            \textbf{Condition} & \multicolumn{2}{c}{\textbf{Prescribed antibiotics (\%)}} \\
+            & \textbf{Guideline} & \textbf{Observed} \\ \hline
+            Acute bronchitis & 0 & 92 \\
+            Acute tonsillitis & <40 & 94 \\
+            Influenza & 0 & 52 \\
+            Sinusitis & <8 & 91 \\
+        \end{tabular}
+    \end{table}
+    \centering
+    \tiny{Data from NPS MedicineInsight practices, 2017 (AURA 2019: Third Australian report on antimicrobial use and resistance)}
+\end{frame}
+
+\begin{frame}{Google mobility data, Sydney, 2020}
+\centering
+\includegraphics[height=0.8\textheight]
+        {ref/google-mobility-20210202.PNG}
+% https://covid19.apple.com/mobility
+\end{frame}
+
+\begin{frame}{flutracking.net, community influenza-like illness}
+\centering
+\includegraphics[height=0.8\textheight]
+	{ref/flutracking.net-202010202.PNG}
+\end{frame}
+
+\begin{frame}{Human behaviour}
+\centering
+\includegraphics[height=0.75\textheight]
+	{ref/toilet-paper-crop.jpg}
+
+	\tiny 9 March 2020
+
+	(C) Christopher Corneschi.
+	Reproduced under CC-BY-SA licence [cropped from original]
+	% XXXX nice to rotate this and put on the right
+\end{frame}
+
+\begin{frame}{Methods}
+    \begin{itemize}
+        \item Aggregate (``S85'') PBS dispensing data, Nov 2016 to Oct 2020
+        \item 10\% sample person-level PBS dispensing data, Nov 2016 to Aug 2020
+        \item ATC J01 antibacterials for systemic use
+        \item Autoregressive Moving Average (ARMA) model, automatic selection
+        \item Intercept, trend, month dummies for seasonality
+        \item Pulse term for Mar 2020, Level shift term for Apr 2020 - Oct 2020
+    \end{itemize}
+\end{frame}
+
+%% begin.rcode loadlibs, message=FALSE
+% library(dplyr)
+% library(ggplot2)
+% library(tsibble)
+% library(feasts)
+% library(fable)
+% library(tidyr)
+% library(sessioninfo)
+%
+% mine <- c("#000000FF", "#A3000080", "#0000A380")
+% mine2 <- c("#8888CC", "#A32222", "#000000", "#0000A3")
+% options(ggplot2.discrete.colour = mine)
+% options(ggplot2.discrete.fill = mine2)
+% update_geom_defaults("line", list(size = 1))
+%% end.rcode
+ 
+%% begin.rcode data
+% DATADIR="/mnt/pearson/PBS 10% Sample/Projects/Malcolm Gillies/COVID/"
+% out <- readRDS(paste0(DATADIR,"s85j01monthly.rds"))
+% all <- aggregate(out$x, by=list(date=out$date), FUN=sum)
+% 
+% a <- all %>% filter(date >= yearmonth("2015-11-01") &
+% 	date < yearmonth("2020-11-01")) %>%
+%	rename(cnt=x)
+% ts <- tsibble(a, index=date)
+% 
+% a2 <- all %>% filter(date >= yearmonth("2015-02-01") &
+% 	date < yearmonth("2020-02-01")) %>%
+%	rename(cnt=x)
+% ts2 <- tsibble(a2, index=date)
+% 
+%% end.rcode
+
+\begin{frame}{Results: overall changes in PBS antibiotic dispensing}
+%% begin.rcode j01armap3, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
+% tss <- ts %>% mutate(step=ifelse(as.Date(date)>=as.Date("2020-04-01"),1,0),
+% 		pulse=ifelse(as.Date(date)==as.Date("2020-03-01"),1,0))
+%
+% ts.arima <- tss %>% model(ARIMA(log(cnt)~1+pdq(d=0)+PDQ(0,0,0)+step+pulse+season()+trend(), stepwise=FALSE))
+%
+% df <- as_tibble(tss)
+% df$time <- df$date - df[1,]$date
+% 
+% a <- ts.arima %>% tidy()
+% m <- a[a$term == "trend()",]$estimate
+% b <- a[a$term == "intercept",]$estimate
+% p <- a[a$term == "pulse",]$estimate
+% s <- a[a$term == "step",]$estimate
+% ss <- mean(a[grep("^season", a$term),]$estimate)
+% 
+% # Get predictions on the same scale as the data
+% df$fit <- exp(m*df$time+s*df$step+p*df$pulse+b+ss)
+% 
+% tssf <- tss %>% filter(date >= yearmonth("2017-11-01") &
+%               date < yearmonth("2020-11-01"))
+%
+% library(readabs)
+% # 310104 - Australian ERP by quarter
+% # A2060842F - Persons; Australia
+% erp <- tsibble(read_abs_local(filenames=c("310104.xls"), path="ref") %>%
+%	 	filter(series_id == "A2060842F") %>%
+%		mutate(date=yearmonth(date)), index=date) %>%
+% 	full_join(tibble(
+%		date = seq(yearmonth("1981-09-01"), yearmonth("2020-10-01"),
+%			by=1))) %>%
+% 	fill_gaps %>% filter(date >= yearmonth("2014-01-01"))
+%
+% erpx <- erp %>% model(lm = TSLM(value ~ trend(
+%	knots=yearmonth(c('2015-01-01', '2016-01-01', '2017-01-01',
+%       '2018-01-01', '2019-01-01'))))) %>% interpolate(erp)
+%
+%
+% df <- df %>% inner_join(erpx) %>% mutate(fit=fit*1000/value)
+% # tssf <- tssf %>% mutate(cnt=cnt*1000/25e6)
+% tssf <- tssf %>% inner_join(erpx) %>% mutate(cnt=cnt*1000/value)
+%
+% df %>% filter(date >= yearmonth("2017-11-01") &
+%               date < yearmonth("2020-11-01")) %>%
+% ggplot(aes(x = date, y = fit, colour="Model")) +
+% 	geom_line() +
+% 	geom_line(data=tssf, aes(x=date, y=cnt, colour="Data")) +
+% 	scale_x_yearmonth(date_labels="%d-%b-%y") +
+% 	xlab("Date") +
+% 	ylab("Monthly PBS dispensings J01\nper 1000 population") +
+% 	theme(axis.title.x = element_text(size = 10),
+% 		axis.title.y = element_text(size = 10)) +
+%# 	geom_vline(xintercept = as.Date("2020-03-01")) +
+%#	geom_vline(xintercept = as.Date("2020-04-01")) +
+%   	guides(colour=guide_legend(title=NULL))
+% 
+%% end.rcode
+\end{frame}
+
+\begin{frame}{Top 10 antibiotics step changes}
+%% begin.rcode j01arimatab, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE, sanitize=TRUE
+% 
+% library(haven)
+% ATCDIR="/mnt/cbdrh/MPRU/Data Resources/ATC & DDD WHO Classification/"
+%
+% atctmp <- read_sas(paste0(ATCDIR, "who_atc_2018.sas7bdat"))
+% # atc_name <- setNames(atctmp$ATC_NAME, atctmp$ATC_CODE)
+% atc_name <- setNames(paste0(toupper(substr(atctmp$ATC_NAME, 1, 1)),
+%	substr(atctmp$ATC_NAME, 2, nchar(atctmp$ATC_NAME))), atctmp$ATC_CODE)
+% out <- readRDS(paste0(DATADIR,"s85j01monthly.rds"))
+% top <- out %>% filter(date >= yearmonth("2018-07-01") &
+% 		date < yearmonth("2019-07-01")) %>%
+%		group_by(atc) %>% summarise(cnt=sum(x), .groups="drop") %>%
+%		arrange(desc(cnt)) %>%
+%		slice_head(n=10)
+% top$name <- atc_name[top$atc]
+%
+% o <- out %>% filter(atc %in% top$atc)
+% o$name <- factor(atc_name[o$atc], ordered=TRUE,
+% 	levels=c("Overall", atc_name[top$atc]))
+% all <- aggregate(o$x, by=list(date=o$date, cat=o$name), FUN=sum)
+% a <- all %>% filter(date >= yearmonth("2015-11-01") &
+% 	date < yearmonth("2020-11-01")) %>%
+%	rename(cnt=x)
+% allts <- as_tsibble(a, index=date, key=cat)
+% tss <- allts %>% mutate(step=ifelse(as.Date(date)>=as.Date("2020-04-01"),1,0),
+% 		pulse=ifelse(as.Date(date)==as.Date("2020-03-01"),1,0))
+% 
+% all <- aggregate(out$x, by=list(date=out$date), FUN=sum)
+% a <- all %>% filter(date >= yearmonth("2015-11-01") &
+% 	date < yearmonth("2020-11-01")) %>%
+%	rename(cnt=x) %>% mutate(cat="Overall")
+% a$cat <- factor(a$cat, ordered=TRUE,
+% 	levels=c("Overall", atc_name[top$atc]))
+% allts <- as_tsibble(a, index=date, key=cat)
+% tss2 <- allts %>% mutate(step=ifelse(as.Date(date)>=as.Date("2020-04-01"),1,0),
+% 		pulse=ifelse(as.Date(date)==as.Date("2020-03-01"),1,0))
+% tss <- bind_rows(tss, tss2)
+% 
+% spec <- c("overall", "specific", "specific", "specific", "specific",
+%	    "specific", "specific", "specific", "specific", "specific",
+%           "specific")
+%
+% ts.arima2 <- tss %>% model(ARIMA(log(cnt)~1+pdq(d=0)+PDQ(0,0,0)+step+pulse+season()+trend(), stepwise=FALSE))
+% # tidy(ts.arima2) %>% filter(term %in% c("step", "pulse")) %>%
+% tidy(ts.arima2) %>% filter(term %in% c("step")) %>%
+%	mutate(change=exp(estimate)-1, yl=exp(estimate-2*std.error)-1,
+%		yh=exp(estimate+2*std.error)-1) %>%
+% 	ggplot(aes(x=reorder(cat, desc(cat)), y=change, fill=spec)) +
+%# 	ggplot(aes(x=reorder(cat, desc(cat)), y=change, fill=reorder(term, desc(term)))) +
+%#	geom_bar(position="dodge", stat="identity", width=0.7,
+%#		show.legend = FALSE) +
+%#	geom_errorbar(aes(ymin=yl, ymax=yh), width=0.35,
+%#		position=position_dodge(.7)) +
+%	geom_bar(stat="identity", show.legend = FALSE) +
+%	geom_errorbar(aes(ymin=yl, ymax=yh), width=0.5) +
+%	scale_y_continuous(labels = scales::percent) +
+%	scale_x_discrete(position = 'top', name = '') +
+%	ylab("Change from expected (%)") +
+%	coord_flip()
+%% end.rcode
+\end{frame}
+
+
+\begin{frame}{By age}
+%% begin.rcode j01age, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
+% # par(mar=c(5, 4, 1, 2) + 0.1)
+% 
+% agegrp <- function(a) {
+%        cut(a,
+%                breaks = c(-130,2,5,10,18,65,130), # randomised DOB -> neg age
+%                right=FALSE, ordered_result=TRUE,
+%                labels = c("<2", "2-<5","5-<10","10-<18", "18-<65", "65+"))
+% }
+
+% # 3101059 - Australian ERP by year and age
+%
+% tmp <- read_abs_local(filenames=c("3101059.xls"), path="ref") %>%
+%	mutate(date=yearmonth(date)) %>%
+%	filter(grepl("^Estimated Resident Population ;  Persons ;  ", series)) %>%
+%	mutate(series=sub("Estimated Resident Population ;  Persons ;  ", "", series)) %>%
+%	mutate(series=sub(" ;", "", series)) %>%
+%	mutate(series=sub(" and over", "", series)) %>%
+%	mutate(age=as.integer(series)) %>%
+%	filter(!is.na(age)) %>%
+%	mutate(agegroup=agegrp(age)) %>%
+%	group_by(date, agegroup) %>% summarise(cnt=sum(value), .groups="drop")
+% 
+% tmp2 <- tmp[,c("agegroup", "date", "cnt")] %>%
+%	complete(agegroup,
+%		date=seq(yearmonth("1981-09-01"), yearmonth("2020-10-01"),
+%                       by=1)) %>%
+% 	filter(date >= yearmonth("2014-01-01"))
+% erp <- tsibble(tmp2, index=date, key=agegroup) %>% fill_gaps
+%
+% erpa <- erp %>% model(lm = TSLM(cnt ~ trend(
+%	knots=yearmonth(c('2015-01-01', '2016-01-01', '2017-01-01',
+%       '2018-01-01', '2019-01-01'))))) %>% interpolate(erp)
+%
+% out <- readRDS(paste0(DATADIR,"j01monthlyage.rds"))
+%
+% for (g in c("agegrp")) {
+% 	all <- aggregate(out$x, by=list(date=out$date, agegroup=out[[g]]), FUN=sum)
+% allts <- tsibble(all, index=date, key=agegroup) %>%
+% 	inner_join(erpa) %>% mutate(x=x*1e4/cnt)
+% 
+% allts %>%
+%#	filter(agegroup != 'Other' & agegroup != 'UNK') %>%
+% 	filter(date >= yearmonth("2018-10-01") &
+% 		date < yearmonth("2020-10-01")) %>% {
+% 	ggplot(.,aes(x=date, y=x)) + geom_line() +
+%	facet_wrap(ncol=2, vars(agegroup), scales = "free_y", strip.position="right") +
+% 		scale_x_yearmonth(date_labels="%d-%b-%y", date_breaks="1 year") +
+% 		xlab("Date") +
+% 		ylab("Monthly PBS dispensings J01\nper 1000 pop") +
+%               labs(colour=g) +
+%		theme(axis.title.x = element_text(size = 10),
+%			axis.title.y = element_text(size = 10))
+%#		geom_vline(xintercept = as.Date("2020-03-23"))
+%	} %>% print
+%}
+% 
+%% end.rcode
+\end{frame}
+
+\begin{frame}{By prescriber specialty}
+%% begin.rcode j01specialty, fig.width=3.3, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
+% # par(mar=c(5, 4, 1, 2) + 0.1)
+% 
+% out <- readRDS(paste0(DATADIR,"j01monthly.rds"))
+% for (g in c("specialty")) {
+% 	all <- aggregate(out$x, by=list(date=out$date, cat=out[[g]]), FUN=sum)
+% allts <- tsibble(all, index=date, key=cat) %>%
+% 	inner_join(erpx) %>% mutate(x=x*1e4/value)
+% 
+% allts %>%
+%	filter(cat != 'Unknown') %>%
+% 	filter(date >= yearmonth("2018-10-01") &
+% 		date < yearmonth("2020-10-01")) %>% {
+% 	ggplot(.,aes(x=date, y=x)) + geom_line() +
+%	facet_grid(vars(cat), scales = "free_y") +
+% 		scale_x_yearmonth(date_labels="%d-%b-%y", date_breaks="1 year") +
+% 		xlab("Date") +
+% 		ylab("Monthly PBS dispensings J01\nper 1000 pop") +
+%               labs(colour=g) +
+%		theme(axis.title.x = element_text(size = 10),
+%			axis.title.y = element_text(size = 10))
+%#		geom_vline(xintercept = as.Date("2020-03-23"))
+%	} %>% print
+%}
+% 
+%% end.rcode
+\end{frame}
+
+\begin{frame}{Thanks}
+    \begin{itemize}
+        \item Andrea
+        \item Helga
+    \end{itemize}
+\end{frame}
+
+\end{document}
