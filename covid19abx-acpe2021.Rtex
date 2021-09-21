@@ -115,39 +115,9 @@ involvement in, the current study.  \medskip
 	\item Victorian Government Operational Infrastructure Program [DPB, JEM, IMFT]
 	\item Australian Government Department of Health [SGS]
 \end{itemize}
-
 \end{frame}
 
-\begin{frame}{Guideline concordance in Australian primary care}
-    \begin{table}[h]
-        \centering
-        \begin{tabular}{lr@{ }r@{ }}
-            \textbf{Condition} & \multicolumn{2}{c}{\textbf{Prescribed antibiotics (\%)}} \\
-            & \textbf{Guideline} & \textbf{Observed} \\ \hline
-            Acute bronchitis & 0 & 92 \\
-            Acute tonsillitis & <40 & 94 \\
-            Influenza & 0 & 52 \\
-            Sinusitis & <8 & 91 \\
-        \end{tabular}
-    \end{table}
-    \centering
-    \tiny{Data from NPS MedicineInsight practices, 2017 (AURA 2019: Third Australian report on antimicrobial use and resistance)}
-\end{frame}
-
-\begin{frame}{Google mobility data, Sydney, 2020}
-\centering
-\includegraphics[height=0.8\textheight]
-        {ref/google-mobility-20210202.PNG}
-% https://covid19.apple.com/mobility
-\end{frame}
-
-\begin{frame}{flutracking.net, community influenza-like illness}
-\centering
-\includegraphics[height=0.8\textheight]
-	{ref/flutracking.net-202010202.PNG}
-\end{frame}
-
-\begin{frame}{Human behaviour}
+\begin{frame}{Background: Human behaviour c. March 2020}
 \centering
 \includegraphics[height=0.75\textheight]
 	{ref/toilet-paper-crop.jpg}
@@ -159,14 +129,28 @@ involvement in, the current study.  \medskip
 	% XXXX nice to rotate this and put on the right
 \end{frame}
 
+\begin{frame}{Background: Google mobility data, Sydney, 2020}
+\centering
+\includegraphics[height=0.8\textheight]
+        {ref/google-mobility-20210202.PNG}
+% https://covid19.apple.com/mobility
+\end{frame}
+
+\begin{frame}{Background: flutracking.net, community influenza-like illness}
+\centering
+\includegraphics[height=0.8\textheight]
+	{ref/flutracking.net-202010202.PNG}
+\end{frame}
+
 \begin{frame}{Methods}
     \begin{itemize}
-        \item Aggregate (``S85'') dispensing claims data, Nov 2016 to Oct 2020
+	\item Aggregate medical claims data (MBS), Nov 2016 to Oct 2020
+	\item Aggregate dispensing claims data (PBS S85), Nov 2016 to Oct 2020
         \item 10\% sample person-level dispensing claims data, Nov 2016 to Aug 2020
         \item ATC J01 antibacterials for systemic use
         \item Autoregressive Moving Average (ARMA) model, automatic selection
         \item Intercept, trend, month dummies for seasonality
-        \item Pulse term for Mar 2020, Level shift term for Apr 2020 - Oct 2020
+        \item Pulse term for Mar 2020, Level shift term for Apr 2020 to Oct 2020
     \end{itemize}
 \end{frame}
 
@@ -177,6 +161,8 @@ involvement in, the current study.  \medskip
 % library(feasts)
 % library(fable)
 % library(tidyr)
+% library(readODS)
+% library(readabs)
 % library(sessioninfo)
 %
 % mine <- c("#000000FF", "#A3000080", "#0000A380")
@@ -186,7 +172,7 @@ involvement in, the current study.  \medskip
 % update_geom_defaults("line", list(size = 1))
 %% end.rcode
  
-%% begin.rcode data
+%% begin.rcode data, message=FALSE
 % DATADIR="/mnt/pearson/PBS 10% Sample/Projects/Malcolm Gillies/COVID/"
 % out <- readRDS(paste0(DATADIR,"s85j01monthly.rds"))
 % all <- aggregate(out$x, by=list(date=out$date), FUN=sum)
@@ -201,9 +187,56 @@ involvement in, the current study.  \medskip
 %	rename(cnt=x)
 % ts2 <- tsibble(a2, index=date)
 % 
+% # 310104 - Australian ERP by quarter
+% # A2060842F - Persons; Australia
+% erp <- tsibble(read_abs_local(filenames=c("310104.xls"), path="ref") %>%
+%	 	filter(series_id == "A2060842F") %>%
+%		mutate(date=yearmonth(date)), index=date) %>%
+% 	full_join(tibble(
+%		date = seq(yearmonth("1981-09-01"), yearmonth("2020-10-01"),
+%			by=1))) %>%
+% 	fill_gaps %>% filter(date >= yearmonth("2014-01-01"))
+%
+% erpx <- erp %>% model(lm = TSLM(value ~ trend(
+%	knots=yearmonth(c('2015-01-01', '2016-01-01', '2017-01-01',
+%       '2018-01-01', '2019-01-01'))))) %>% interpolate(erp)
+%
 %% end.rcode
 
-\begin{frame}{Results: overall changes in antibiotic dispensing}
+\begin{frame}{Results: Changes in primary care consultation rates}
+%% begin.rcode suppmbs, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
+%
+% mbs <- read_ods("ref/GP_ALL_F2F_TELE-2.ods", sheet="Data",
+%       strings_as_factors=FALSE, verbose=FALSE)
+%
+% mbsts2 <- mbs %>%
+%       mutate(date=yearmonth(as.Date(paste0("01-", MONTH),
+%               tryFormats="%d-%b-%y"))) %>%
+%       group_by(date) %>%
+%       summarise(f2f=sum(ALL_F2F), tele=sum(All_TELEHEALTH),
+%               .groups="drop") %>%
+%       tsibble(index=date)
+%
+% mbsts2 <- mbsts2 %>% inner_join(erpx) %>%
+%       mutate(f2f=f2f*1000/value, tele=tele*1000/value) %>%
+%       filter(date >= yearmonth("2017-11-01") &
+%               date < yearmonth("2020-11-01"))
+%
+% mbsts2 %>%
+% ggplot(aes(x = date, y = f2f, colour="Face-to-face")) +
+%       geom_line() +
+%       geom_line(aes(x=date, y=tele, colour="Teleheath")) +
+%       scale_x_yearmonth(date_labels="%d-%b-%y") +
+%       xlab("Date") +
+%       ylab("Monthly consultations\nper 1000 population") +
+%       theme(axis.title.x = element_text(size = 10),
+%               axis.title.y = element_text(size = 10)) +
+%       guides(colour=guide_legend(title=NULL))
+%
+%% end.rcode
+\end{frame}
+
+\begin{frame}{Results: Changes in antibiotic dispensing}
 %% begin.rcode j01armap3, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
 % tss <- ts %>% mutate(step=ifelse(as.Date(date)>=as.Date("2020-04-01"),1,0),
 % 		pulse=ifelse(as.Date(date)==as.Date("2020-03-01"),1,0))
@@ -226,22 +259,6 @@ involvement in, the current study.  \medskip
 % tssf <- tss %>% filter(date >= yearmonth("2017-11-01") &
 %               date < yearmonth("2020-11-01"))
 %
-% library(readabs)
-% # 310104 - Australian ERP by quarter
-% # A2060842F - Persons; Australia
-% erp <- tsibble(read_abs_local(filenames=c("310104.xls"), path="ref") %>%
-%	 	filter(series_id == "A2060842F") %>%
-%		mutate(date=yearmonth(date)), index=date) %>%
-% 	full_join(tibble(
-%		date = seq(yearmonth("1981-09-01"), yearmonth("2020-10-01"),
-%			by=1))) %>%
-% 	fill_gaps %>% filter(date >= yearmonth("2014-01-01"))
-%
-% erpx <- erp %>% model(lm = TSLM(value ~ trend(
-%	knots=yearmonth(c('2015-01-01', '2016-01-01', '2017-01-01',
-%       '2018-01-01', '2019-01-01'))))) %>% interpolate(erp)
-%
-%
 % df <- df %>% inner_join(erpx) %>% mutate(fit=fit*1000/value)
 % # tssf <- tssf %>% mutate(cnt=cnt*1000/25e6)
 % tssf <- tssf %>% inner_join(erpx) %>% mutate(cnt=cnt*1000/value)
@@ -257,13 +274,13 @@ involvement in, the current study.  \medskip
 % 	theme(axis.title.x = element_text(size = 10),
 % 		axis.title.y = element_text(size = 10)) +
 %# 	geom_vline(xintercept = as.Date("2020-03-01")) +
-%#	geom_vline(xintercept = as.Date("2020-04-01")) +
-%   	guides(colour=guide_legend(title=NULL))
+	%#	geom_vline(xintercept = as.Date("2020-04-01")) +
+	%   	guides(colour=guide_legend(title=NULL))
 % 
 %% end.rcode
 \end{frame}
 
-\begin{frame}{Top 10 antibiotics step changes}
+\begin{frame}{Results: Top 10 antibiotics step changes}
 %% begin.rcode j01arimatab, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE, sanitize=TRUE
 % 
 % library(haven)
@@ -328,8 +345,63 @@ involvement in, the current study.  \medskip
 %% end.rcode
 \end{frame}
 
+\begin{frame}{Results: Antibiotic changes by prescriber specialty}
+%% begin.rcode j01specialty, fig.width=3.3, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
+% # par(mar=c(5, 4, 1, 2) + 0.1)
+% 
+% out <- readRDS(paste0(DATADIR,"j01monthly.rds"))
+% for (g in c("specialty")) {
+% 	all <- aggregate(out$x, by=list(date=out$date, cat=out[[g]]), FUN=sum)
+% allts <- tsibble(all, index=date, key=cat) %>%
+% 	inner_join(erpx) %>% mutate(x=x*1e4/value)
+% 
+% allts %>%
+%	filter(cat != 'Unknown') %>%
+% 	filter(date >= yearmonth("2018-10-01") &
+% 		date < yearmonth("2020-10-01")) %>% {
+% 	ggplot(.,aes(x=date, y=x)) + geom_line() +
+%	facet_grid(vars(cat), scales = "free_y") +
+% 		scale_x_yearmonth(date_labels="%d-%b-%y", date_breaks="1 year") +
+% 		xlab("Date") +
+% 		ylab("Monthly dispensings J01\nper 1000 pop") +
+%               labs(colour=g) +
+%		theme(axis.title.x = element_text(size = 10),
+%			axis.title.y = element_text(size = 10))
+%#		geom_vline(xintercept = as.Date("2020-03-23"))
+%	} %>% print
+%}
+% 
+%% end.rcode
+\end{frame}
 
-\begin{frame}{By age}
+\begin{frame}{Discussion: Guideline concordance in Australian primary care}
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{lr@{ }r@{ }}
+            \textbf{Condition} & \multicolumn{2}{c}{\textbf{Prescribed antibiotics (\%)}} \\
+            & \textbf{Guideline} & \textbf{Observed} \\ \hline
+            Acute bronchitis & 0 & 92 \\
+            Acute tonsillitis & <40 & 94 \\
+            Influenza & 0 & 52 \\
+            Sinusitis & <8 & 91 \\
+        \end{tabular}
+    \end{table}
+    \centering
+    \tiny{Data from NPS MedicineInsight practices, 2017 (AURA 2019: Third Australian report on antimicrobial use and resistance)}
+\end{frame}
+
+\begin{frame}{Thanks}
+    \begin{itemize}
+        \item Australian Government Services Australia for providing the data
+	\item Melisa Litchfield for assisting with data access and ethics approval
+    \end{itemize}
+\vfill
+	Published in \emph{Br J Clin Pharmacol} 2021 doi:\href{https://doi.org/10.1111/bcp.15000}{10.1111/bcp.15000}
+
+Contact: malcolm.gillies@unsw.edu.au
+\end{frame}
+
+\begin{frame}{Additional results: Antibiotics changes by age}
 %% begin.rcode j01age, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
 % # par(mar=c(5, 4, 1, 2) + 0.1)
 % 
@@ -390,44 +462,60 @@ involvement in, the current study.  \medskip
 %% end.rcode
 \end{frame}
 
-\begin{frame}{By prescriber specialty}
-%% begin.rcode j01specialty, fig.width=3.3, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
+\begin{frame}{Additional results: Antibiotics changes by State}
+%% begin.rcode j01state, fig.width=5.8, fig.height=2.5, fig.align='center', out.width='0.7\\textwidth', message=FALSE
 % # par(mar=c(5, 4, 1, 2) + 0.1)
-% 
+% tmp <- read_abs_local(filenames=c("310104.xls"), path="ref") %>%
+%       mutate(date=yearmonth(date)) %>%
+%       filter(grepl("^Estimated Resident Population ;  Persons ;  ", series)) %>%
+%       mutate(series=sub("Estimated Resident Population ;  Persons ;  ", "", series)) %>%
+%       mutate(state=recode(series,
+%               `New South Wales ;`="NSW",
+%               `Victoria ;`="VIC",
+%               `Queensland ;`="QLD",
+%               `South Australia ;`="SA",
+%               `Western Australia ;`="WA",
+%               `Tasmania ;`="TAS",
+%               `Northern Territory ;`="NT",
+%               `Australian Capital Territory ;`="ACT",
+%       .default=NA_character_)) %>%
+%       filter(!is.na(state))
+%
+% tmp2 <- tmp[,c("state", "date", "value")] %>%
+%       complete(state,
+%               date=seq(yearmonth("1981-09-01"), yearmonth("2020-10-01"),
+%                       by=1)) %>%
+%       filter(date >= yearmonth("2014-01-01"))
+% erp <- tsibble(tmp2, index=date, key=state) %>% fill_gaps
+%
+% erps <- erp %>% model(lm = TSLM(value ~ trend(
+%       knots=yearmonth(c('2015-01-01', '2016-01-01', '2017-01-01',
+%       '2018-01-01', '2019-01-01'))))) %>% interpolate(erp)
+%
+%
 % out <- readRDS(paste0(DATADIR,"j01monthly.rds"))
-% for (g in c("specialty")) {
-% 	all <- aggregate(out$x, by=list(date=out$date, cat=out[[g]]), FUN=sum)
-% allts <- tsibble(all, index=date, key=cat) %>%
-% 	inner_join(erpx) %>% mutate(x=x*1e4/value)
-% 
+% for (g in c("state")) {
+%       all <- aggregate(out$x, by=list(date=out$date, state=out[[g]]), FUN=sum)
+% allts <- tsibble(all %>% inner_join(erps) %>% mutate(x=x*1e4/value),
+%       index=date, key=state)
+%
 % allts %>%
-%	filter(cat != 'Unknown') %>%
-% 	filter(date >= yearmonth("2018-10-01") &
-% 		date < yearmonth("2020-10-01")) %>% {
-% 	ggplot(.,aes(x=date, y=x)) + geom_line() +
-%	facet_grid(vars(cat), scales = "free_y") +
-% 		scale_x_yearmonth(date_labels="%d-%b-%y", date_breaks="1 year") +
-% 		xlab("Date") +
-% 		ylab("Monthly dispensings J01\nper 1000 pop") +
+%       filter(state != 'Other' & state != 'UNK') %>%
+%       filter(date >= yearmonth("2018-10-01") &
+%               date < yearmonth("2020-10-01")) %>% {
+%       ggplot(.,aes(x=date, y=x)) + geom_line() +
+%       facet_wrap(ncol=2, vars(state), scales = "free_y", strip.position="right") +
+%               scale_x_yearmonth(date_labels="%d-%b-%y", date_breaks="1 year") +
+%               xlab("Date") +
+%               ylab("Monthly PBS dispensings J01\nper 1000 pop") +
 %               labs(colour=g) +
-%		theme(axis.title.x = element_text(size = 10),
-%			axis.title.y = element_text(size = 10))
-%#		geom_vline(xintercept = as.Date("2020-03-23"))
-%	} %>% print
+%               theme(axis.title.x = element_text(size = 10),
+%                       axis.title.y = element_text(size = 10))
+%#              geom_vline(xintercept = as.Date("2020-03-23"))
+%       } %>% print
 %}
-% 
+%
 %% end.rcode
-\end{frame}
-
-\begin{frame}{Thanks}
-    \begin{itemize}
-        \item Australian Government Services Australia for providing the data
-	\item Melisa Litchfield for assisting with data access and ethics approval
-    \end{itemize}
-\vfill
-	Published in \emph{Br J Clin Pharmacol} 2021 doi:\href{https://doi.org/10.1111/bcp.15000}{10.1111/bcp.15000}
-
-Contact: malcolm.gillies@unsw.edu.au
 \end{frame}
 
 \end{document}
