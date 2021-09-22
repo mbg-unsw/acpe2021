@@ -5,7 +5,7 @@
 % This work is licensed under a
 % Creative Commons Attribution-NonCommercial-ShareAlike 4.0
 % International Licence
-\documentclass[aspectratio=169,12pt]{beamer} % XXXX fix AR here
+\documentclass[aspectratio=169,12pt,usepdftitle=false]{beamer} % XXXX fix AR here
 \usepackage[latin1]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
@@ -21,6 +21,11 @@
 \usepackage{tikzpagenodes}
 \usepackage{gitinfo2}
 \newcommand{\rinline}[1]{SOMETHING WRONG WITH knitr}
+
+\hypersetup{pdfauthor={(C) 2021 Malcolm Gillies. CC-BY-NC-SA},
+            pdftitle={Changes in antibiotic prescribing following COVID-19 restrictions},
+	    pdfkeywords={COVID-19, antibiotics, Australia, drug utilisation}}
+
 %% begin.rcode setup, include=FALSE
 % library(knitr)
 % opts_knit$set(progress=FALSE, verbose=FALSE)
