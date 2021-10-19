@@ -9,7 +9,7 @@ First published: 17 August 2021
 
 https://doi.org/10.1111/bcp.15000
 
-To be delivered to ISPE's 13th Asian Conference on Pharmacoepidemiology and Risk Management
+Presented at ISPE's 13th Asian Conference on Pharmacoepidemiology and Risk Management
 (ACPE 2021) on 15 October 2021.
 
 n.b. complete data to generate results figures is not included in this repo as we are not permitted to redistribute it.
